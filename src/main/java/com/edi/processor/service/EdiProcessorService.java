@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,12 +24,21 @@ public class EdiProcessorService {
     private static final String MIME_TYPE_TEXT = "plain/text";
     private static final String SUCCESS_MESSAGE = "File processed successfully";
     private static final String ERROR_MESSAGE = "unable to process request";
+    private static final String INVALID_VALUE_MESSAGE = "Invalid value provided";
 
     // Response Type Constants
     private static final String RESPONSE_TYPE_GETSCHEMA = "GETSCHEMA";
     private static final String RESPONSE_TYPE_ACK = "ACK";
     private static final String RESPONSE_TYPE_SHIPCONFIRM = "SHIPCONFIRM";
     private static final String RESPONSE_TYPE_RECEIPT = "RECEIPT";
+
+    // Valid Response Types List
+    private static final List<String> VALID_RESPONSE_TYPES = Arrays.asList(
+            RESPONSE_TYPE_GETSCHEMA,
+            RESPONSE_TYPE_ACK,
+            RESPONSE_TYPE_SHIPCONFIRM,
+            RESPONSE_TYPE_RECEIPT
+    );
 
     // Transaction Type Constants
     private static final String TRANSACTION_TYPE_ORDER = "ORDER";
@@ -37,9 +47,34 @@ public class EdiProcessorService {
     private static final String TRANSACTION_TYPE_ERROR_RESPONSE = "ERRORRESPONSE";
     private static final String TRANSACTION_TYPE_ERROR_TIMEOUT = "ERRORTIMEOUT";
 
+    // Valid Transaction Types List
+    private static final List<String> VALID_TRANSACTION_TYPES = Arrays.asList(
+            TRANSACTION_TYPE_ORDER,
+            TRANSACTION_TYPE_ASN,
+            TRANSACTION_TYPE_SHIPCONFIRM,
+            TRANSACTION_TYPE_ERROR_RESPONSE,
+            TRANSACTION_TYPE_ERROR_TIMEOUT
+    );
+
     // Order Type Constants
     private static final String ORDER_TYPE_LTL = "LTL";
     private static final String ORDER_TYPE_PARCEL = "PARCEL";
+
+    // Valid Order Types List
+    private static final List<String> VALID_ORDER_TYPES = Arrays.asList(
+            ORDER_TYPE_LTL,
+            ORDER_TYPE_PARCEL
+    );
+
+    // Format Constants
+    private static final String FORMAT_EDI = "EDI";
+    private static final String FORMAT_JSON = "JSON";
+
+    // Valid Formats List
+    private static final List<String> VALID_FORMATS = Arrays.asList(
+            FORMAT_EDI,
+            FORMAT_JSON
+    );
 
     /**
      * Process the EDI request and return appropriate response based on business logic
@@ -57,12 +92,68 @@ public class EdiProcessorService {
         log.info("Processing request - UUID: {}, TransactionType: {}, OrderType: {}, Format: {}, ResponseType: {}",
                 uuid, transactionType, orderType, format, responseType);
 
+        // Validate all field values
+        String validationError = validateFieldValues(transactionType, orderType, format, responseType);
+        if (validationError != null) {
+            log.error("Validation failed: {}", validationError);
+            return buildValidationErrorResponse(transactionType, responseType, format, uuid, validationError);
+        }
+
         try {
             return processBusinessLogic(transactionType, orderType, format, responseType, uuid);
         } catch (Exception e) {
             log.error("Error processing request: {}", e.getMessage(), e);
             throw new EdiProcessingException(e.getMessage(), transactionType, responseType, format, uuid, e);
         }
+    }
+
+    /**
+     * Validate all field values against allowed values
+     */
+    private String validateFieldValues(String transactionType, String orderType, 
+                                        String format, String responseType) {
+        
+        // Validate Transaction Type
+        if (transactionType != null && !isValidTransactionType(transactionType)) {
+            return "Invalid TRANSACTION TYPE: '" + transactionType + "'. Valid values are: " + VALID_TRANSACTION_TYPES;
+        }
+
+        // Validate Order Type (only if provided)
+        if (orderType != null && !orderType.isEmpty() && !isValidOrderType(orderType)) {
+            return "Invalid ORDER TYPE: '" + orderType + "'. Valid values are: " + VALID_ORDER_TYPES;
+        }
+
+        // Validate Format (only if provided)
+        if (format != null && !format.isEmpty() && !isValidFormat(format)) {
+            return "Invalid FORMAT: '" + format + "'. Valid values are: " + VALID_FORMATS;
+        }
+
+        // Validate Response Type (only if provided)
+        if (responseType != null && !responseType.isEmpty() && !isValidResponseType(responseType)) {
+            return "Invalid RESPONSE TYPE: '" + responseType + "'. Valid values are: " + VALID_RESPONSE_TYPES;
+        }
+
+        return null; // No validation errors
+    }
+
+    private boolean isValidTransactionType(String transactionType) {
+        return VALID_TRANSACTION_TYPES.stream()
+                .anyMatch(valid -> valid.equalsIgnoreCase(transactionType));
+    }
+
+    private boolean isValidOrderType(String orderType) {
+        return VALID_ORDER_TYPES.stream()
+                .anyMatch(valid -> valid.equalsIgnoreCase(orderType));
+    }
+
+    private boolean isValidFormat(String format) {
+        return VALID_FORMATS.stream()
+                .anyMatch(valid -> valid.equalsIgnoreCase(format));
+    }
+
+    private boolean isValidResponseType(String responseType) {
+        return VALID_RESPONSE_TYPES.stream()
+                .anyMatch(valid -> valid.equalsIgnoreCase(responseType));
     }
 
     /**
@@ -119,25 +210,25 @@ public class EdiProcessorService {
         if (TRANSACTION_TYPE_ORDER.equalsIgnoreCase(transactionType)) {
             if (ORDER_TYPE_LTL.equalsIgnoreCase(orderType) || ORDER_TYPE_PARCEL.equalsIgnoreCase(orderType)) {
                 String filename = transactionType + "_" + orderType + "_Schema_" + uuid + "." + fileExtension;
-                return buildSuccessResponse(filename, "This is the content for " + orderType +" "+transactionType+" Schema", mimeType);
+                return buildSuccessResponse(filename, "<content_placeholder>", mimeType);
             }
         }
 
         // ASN Transaction Type
         if (TRANSACTION_TYPE_ASN.equalsIgnoreCase(transactionType)) {
             String filename = transactionType + "_Schema_" + uuid + "." + fileExtension;
-            return buildSuccessResponse(filename, "This is the content for "+transactionType+" Schema", mimeType);
+            return buildSuccessResponse(filename, "<content_placeholder>", mimeType);
         }
 
         // SHIPCONFIRM Transaction Type
         if (TRANSACTION_TYPE_SHIPCONFIRM.equalsIgnoreCase(transactionType)) {
             String filename = transactionType + "_" + orderType + "_Schema_" + uuid + "." + fileExtension;
-            return buildSuccessResponse(filename, "This is the content for "+transactionType+" Schema", mimeType);
+            return buildSuccessResponse(filename, "<content_placeholder>", mimeType);
         }
 
         // Default for GETSCHEMA with unknown transaction type
         String filename = transactionType + "_Schema_" + uuid + "." + fileExtension;
-        return buildSuccessResponse(filename, "This is the content for "+transactionType+" Schema", mimeType);
+        return buildSuccessResponse(filename, "<content_placeholder>", mimeType);
     }
 
     private EdiResponse handleOrderTransaction(String orderType, String format,
@@ -147,8 +238,8 @@ public class EdiProcessorService {
 
         // Response Type: ACK - returns single response
         if (RESPONSE_TYPE_ACK.equalsIgnoreCase(responseType)) {
-            String filename = TRANSACTION_TYPE_ORDER + "_" +orderType+"_"+ responseType + "_" + uuid + "." + fileExtension;
-            return buildSuccessResponse(filename, "This is the content for " + orderType + " " + TRANSACTION_TYPE_ORDER + " " + responseType, mimeType);
+            String filename = TRANSACTION_TYPE_ORDER + "_" + responseType + "_" + uuid + "." + fileExtension;
+            return buildSuccessResponse(filename, "<content_placeholder>", mimeType);
         }
 
         // Response Type: SHIPCONFIRM - returns TWO response items
@@ -156,21 +247,21 @@ public class EdiProcessorService {
             List<ResponseItem> items = new ArrayList<>();
 
             // First response item - ACK
-            String ackFilename = TRANSACTION_TYPE_ORDER + "_" + orderType + "_ACK_" + uuid + "." + fileExtension;
+            String ackFilename = TRANSACTION_TYPE_ORDER + "_ACK_" + uuid + "." + fileExtension;
             items.add(ResponseItem.builder()
                     .success(true)
                     .filename(ackFilename)
-                    .content("This is the content for " + orderType + " " + TRANSACTION_TYPE_ORDER + " ACK")
+                    .content("<content_placeholder>")
                     .mimeType(mimeType)
                     .message(SUCCESS_MESSAGE)
                     .build());
 
             // Second response item - SHIPCONFIRM
-            String respFilename = TRANSACTION_TYPE_ORDER + "_" + orderType + "_" + responseType + "_" + uuid + "." + fileExtension;
+            String respFilename = TRANSACTION_TYPE_ORDER + "_" + responseType + "_" + uuid + "." + fileExtension;
             items.add(ResponseItem.builder()
                     .success(true)
                     .filename(respFilename)
-                    .content("This is the content for " + orderType + " " + TRANSACTION_TYPE_ORDER + " " + responseType)
+                    .content("<content_placeholder>")
                     .mimeType(mimeType)
                     .message(SUCCESS_MESSAGE)
                     .build());
@@ -180,7 +271,7 @@ public class EdiProcessorService {
 
         // Default for ORDER - returns single response
         String filename = TRANSACTION_TYPE_ORDER + "_" + responseType + "_" + uuid + "." + fileExtension;
-        return buildSuccessResponse(filename, "This is the content for " + orderType + " " + TRANSACTION_TYPE_ORDER + " " + responseType, mimeType);
+        return buildSuccessResponse(filename, "<content_placeholder>", mimeType);
     }
 
     private EdiResponse handleAsnTransaction(String orderType, String format,
@@ -191,7 +282,7 @@ public class EdiProcessorService {
         // Response Type: ACK - returns single response
         if (RESPONSE_TYPE_ACK.equalsIgnoreCase(responseType)) {
             String filename = TRANSACTION_TYPE_ASN + "_" + responseType + "_" + uuid + "." + fileExtension;
-            return buildSuccessResponse(filename, "This is the content for " + TRANSACTION_TYPE_ASN + " " + responseType, mimeType);
+            return buildSuccessResponse(filename, "<content_placeholder>", mimeType);
         }
 
         // Response Type: RECEIPT - returns TWO response items
@@ -203,7 +294,7 @@ public class EdiProcessorService {
             items.add(ResponseItem.builder()
                     .success(true)
                     .filename(ackFilename)
-                    .content("This is the content for " + TRANSACTION_TYPE_ASN + " ACK")
+                    .content("<content_placeholder>")
                     .mimeType(mimeType)
                     .message(SUCCESS_MESSAGE)
                     .build());
@@ -213,7 +304,7 @@ public class EdiProcessorService {
             items.add(ResponseItem.builder()
                     .success(true)
                     .filename(respFilename)
-                    .content("This is the content for " + TRANSACTION_TYPE_ASN + " " + responseType)
+                    .content("<content_placeholder>")
                     .mimeType(mimeType)
                     .message(SUCCESS_MESSAGE)
                     .build());
@@ -223,7 +314,7 @@ public class EdiProcessorService {
 
         // Default for ASN - returns single response
         String filename = TRANSACTION_TYPE_ASN + "_" + responseType + "_" + uuid + "." + fileExtension;
-        return buildSuccessResponse(filename, "This is the content for " + TRANSACTION_TYPE_ASN + " " + responseType, mimeType);
+        return buildSuccessResponse(filename, "<content_placeholder>", mimeType);
     }
 
     private EdiResponse buildSuccessResponse(String filename, String content, String mimeType) {
@@ -251,6 +342,26 @@ public class EdiProcessorService {
                 .content(ERROR_MESSAGE)
                 .mimeType(MIME_TYPE_TEXT)
                 .message(ERROR_MESSAGE)
+                .build();
+
+        return EdiResponse.builder()
+                .response(Collections.singletonList(item))
+                .build();
+    }
+
+    private EdiResponse buildValidationErrorResponse(String transactionType, String responseType,
+                                                      String format, String uuid, String errorMessage) {
+        String fileExtension = format != null ? format.toLowerCase() : "txt";
+        String txnType = transactionType != null ? transactionType : "UNKNOWN";
+        String respType = responseType != null ? responseType : "UNKNOWN";
+        String filename = txnType + "_" + respType + "_VALIDATION_ERROR_" + uuid + "." + fileExtension;
+
+        ResponseItem item = ResponseItem.builder()
+                .success(false)
+                .filename(filename)
+                .content(errorMessage)
+                .mimeType(MIME_TYPE_TEXT)
+                .message(INVALID_VALUE_MESSAGE + ": " + errorMessage)
                 .build();
 
         return EdiResponse.builder()
