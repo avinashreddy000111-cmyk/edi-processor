@@ -269,9 +269,9 @@ public class EdiProcessorService {
         String mimeType = determineMimeType(format);
         String fileExtension = determineFileExtension(format);
         String filename = transactionType + "_" + responseType + "_" + uuid + "." + fileExtension;
-        if (orderType != null) {
-                String filename = transactionType + "_" + responseType + "_" + orderType + "_" + uuid + "." + fileExtension;
-            } 
+        if (orderType != null && !orderType.trim().isEmpty()) {
+            filename = transactionType + "_" + responseType + "_" + orderType + "_" + uuid + "." + fileExtension;
+        }
         String content = contentProvider.getGetSchemaContent(responseType);
 
         return buildSuccessResponse(filename, content, mimeType);
