@@ -50,12 +50,13 @@ public class EdiProcessorService {
     private static final String RESPONSE_TYPE_ACK = "ACK";
     private static final String RESPONSE_TYPE_ASN = "ASN";
     private static final String RESPONSE_TYPE_ITEM = "ITEM";
+    private static final String RESPONSE_TYPE_ORDER = "ORDER";
     private static final String RESPONSE_TYPE_SHIPCONFIRM = "SHIPCONFIRM";
     private static final String RESPONSE_TYPE_RECEIPT = "RECEIPT";
 
     // Valid Response Types for each Transaction Type
     private static final List<String> GETSCHEMA_RESPONSE_TYPES = Arrays.asList(
-            RESPONSE_TYPE_ASN, RESPONSE_TYPE_ITEM, RESPONSE_TYPE_SHIPCONFIRM, RESPONSE_TYPE_RECEIPT
+            RESPONSE_TYPE_ASN, RESPONSE_TYPE_ITEM, RESPONSE_TYPE_ORDER,RESPONSE_TYPE_SHIPCONFIRM, RESPONSE_TYPE_RECEIPT
     );
 
     private static final List<String> ORDER_RESPONSE_TYPES = Arrays.asList(
