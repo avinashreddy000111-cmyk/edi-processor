@@ -239,7 +239,7 @@ public class EdiProcessorService {
 
         // GETSCHEMA Transaction - always returns 1 response
         if (TRANSACTION_TYPE_GETSCHEMA.equalsIgnoreCase(transactionType)) {
-            return handleGetSchemaTransaction(transactionType,format, responseType, uuid);
+            return handleGetSchemaTransaction(transactionType,orderType,format, responseType, uuid);
         }
 
         // ORDER Transaction
@@ -265,14 +265,13 @@ public class EdiProcessorService {
      * Handle GETSCHEMA Transaction - Returns 1 response
      * Valid Response Types: ASN, ITEM, SHIPCONFIRM, RECEIPT
      */
-    private EdiResponse handleGetSchemaTransaction(String transactionType, String format, String responseType, String uuid) {
+    private EdiResponse handleGetSchemaTransaction(String transactionType, String orderType, String format, String responseType, String uuid) {
         String mimeType = determineMimeType(format);
         String fileExtension = determineFileExtension(format);
+        String filename = transactionType + "_" + responseType + "_" + uuid + "." + fileExtension;
         if (orderType != null) {
                 String filename = transactionType + "_" + responseType + "_" + orderType + "_" + uuid + "." + fileExtension;
-            } else {
-                String filename = transactionType + "_" + responseType + "_" + uuid + "." + fileExtension;
-            }
+            } 
         String content = contentProvider.getGetSchemaContent(responseType);
 
         return buildSuccessResponse(filename, content, mimeType);
