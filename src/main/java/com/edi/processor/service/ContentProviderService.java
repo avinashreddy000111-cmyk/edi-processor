@@ -37,6 +37,20 @@ public class ContentProviderService {
     /**
      * Get content for GETSCHEMA transaction
      */
+    public String getfileContent(String transactionType,String responseType,String format,String orderType) {
+        String key = transactionType.toUpperCase() + "." + responseType.toUpperCase() + "." + orderType.toUpperCase() + "." + format.toUpperCase() + ".content";
+        String content = contentProperties.getProperty(key);
+        
+        if (content != null) {
+            return content;
+        }
+        
+        return contentProperties.getProperty("DEFAULT.content", DEFAULT_CONTENT);
+    }
+    
+    /**
+     * Get content for GETSCHEMA transaction
+     */
     public String getGetSchemaContent(String responseType) {
         String key = "GETSCHEMA." + responseType.toUpperCase() + ".content";
         String content = contentProperties.getProperty(key);
