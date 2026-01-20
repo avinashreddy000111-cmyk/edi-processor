@@ -47,6 +47,16 @@ public class ContentProviderService {
         
         return contentProperties.getProperty("DEFAULT.content", DEFAULT_CONTENT);
     }
+        public String getfileWithOrdTypeContent(String transactionType,String responseType,String orderType,String format)) {
+        String key = transactionType.toUpperCase() + "." + responseType.toUpperCase() + "." + orderType.toUpperCase() + "." + format.toUpperCase() + ".content";
+        String content = contentProperties.getProperty(key);
+        
+        if (content != null) {
+            return content;
+        }
+        
+        return contentProperties.getProperty("DEFAULT.content", DEFAULT_CONTENT);
+    }
     
     /**
      * Get content for GETSCHEMA transaction
