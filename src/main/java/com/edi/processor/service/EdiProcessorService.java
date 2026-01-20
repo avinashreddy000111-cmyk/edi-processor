@@ -271,9 +271,10 @@ public class EdiProcessorService {
         String filename = transactionType + "_" + responseType + "_" + uuid + "." + fileExtension;
         if (orderType != null && !orderType.trim().isEmpty()) {
             filename = transactionType + "_" + responseType + "_" + orderType + "_" + uuid + "." + fileExtension;
+            String content = contentProvider.getfileWithOrdTypeContent(transactionType,responseType,orderType,format);
+        }else{
+            String content = contentProvider.getfileWithoutOrdTypeContent(transactionType,responseType,format);
         }
-        String content = contentProvider.getfileContent(transactionType,orderType,format,responseType);
-
         return buildSuccessResponse(filename, content, mimeType);
     }
 
