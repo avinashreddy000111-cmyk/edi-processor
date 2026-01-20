@@ -37,7 +37,7 @@ public class ContentProviderService {
     /**
      * Get content for GETSCHEMA transaction
      */
-    public String getfileContent(String transactionType,String orderType,String format,String responseType) {
+    public String getfileWithOrdTypeContent(String transactionType,String orderType,String format,String responseType) {
         String key = transactionType.toUpperCase() + "." + responseType.toUpperCase() + "." + orderType.toUpperCase() + "." + format.toUpperCase() + ".content";
         String content = contentProperties.getProperty(key);
         
