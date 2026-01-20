@@ -400,7 +400,7 @@ public class EdiProcessorService {
         String respType = responseType != null ? responseType : "ERROR";
         //String filename = transactionType + "_" + respType + "_ERROR_" + uuid + "." + fileExtension;
         String filename = " ";
-        String errMsg = ERROR_MESSAGE + " " + format + " " + responseType + " for" + transactionType +"request";
+        String errMsg = ERROR_MESSAGE + " " + format + " " + responseType + " for " + transactionType +" request";
 
         ResponseItem item = ResponseItem.builder()
                 .success(false)
