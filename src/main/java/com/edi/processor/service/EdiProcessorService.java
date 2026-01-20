@@ -407,7 +407,7 @@ public class EdiProcessorService {
                 .filename(filename)
                 .content(contentProvider.getErrorContent())
                 .mimeType(MIME_TYPE_TEXT)
-                .message(ERROR_MESSAGE)
+                .message(errMsg)
                 .build();
 
         return EdiResponse.builder()
