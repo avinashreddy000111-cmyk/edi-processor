@@ -327,7 +327,7 @@ public class EdiProcessorService {
      * Handle ASN Transaction
      * Valid Response Types: ACK (1 response), RECEIPT (2 responses)
      */
-    private EdiResponse handleAsnTransaction(String format, String responseType, String uuid) {
+    private EdiResponse handleAsnTransaction(String transactionType, String format, String responseType, String uuid) {
         String mimeType = determineMimeType(format);
         String fileExtension = determineFileExtension(format);
 
@@ -370,7 +370,7 @@ public class EdiProcessorService {
      * Handle ITEM Transaction - Returns 1 response
      * Valid Response Types: ACK
      */
-    private EdiResponse handleItemTransaction(String format, String responseType, String uuid) {
+    private EdiResponse handleItemTransaction(String transactionType, String format, String responseType, String uuid) {
         String mimeType = determineMimeType(format);
         String fileExtension = determineFileExtension(format);
 
