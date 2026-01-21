@@ -336,8 +336,8 @@ public class EdiProcessorService {
             List<ResponseItem> items = new ArrayList<>();
 
             // First response - ACK
-            String ackFilename = "ASN_ACK_" + uuid + "." + fileExtension;
-            String ackContent = contentProvider.getAsnReceiptAckContent();
+            String ackFilename = transactionType+"_"+responseType+"_" + uuid + "." + fileExtension;
+            String ackContent = contentProvider.getfileWithOrdTypeContent(transactionType,"ACK",orderType,format);
             items.add(ResponseItem.builder()
                     .success(true)
                     .filename(ackFilename)
@@ -347,8 +347,8 @@ public class EdiProcessorService {
                     .build());
 
             // Second response - RECEIPT
-            String receiptFilename = "ASN_RECEIPT_" + uuid + "." + fileExtension;
-            String receiptContent = contentProvider.getAsnReceiptContent();
+            String receiptFilename = transactionType+"_"+responseType+"_" + uuid + "." + fileExtension;
+            String receiptContent = contentProvider.getfileWithOrdTypeContent(transactionType,responseType,orderType,format);
             items.add(ResponseItem.builder()
                     .success(true)
                     .filename(receiptFilename)
@@ -361,8 +361,8 @@ public class EdiProcessorService {
         }
 
         // ACK - returns 1 response
-        String filename = "ASN_ACK_" + uuid + "." + fileExtension;
-        String content = contentProvider.getAsnAckContent();
+        String filename = transactionType+"_"+responseType+"_" + uuid + "." + fileExtension;
+        String content = contentProvider.getfileWithOrdTypeContent(transactionType,"ACK",orderType,format);
         return buildSuccessResponse(filename, content, mimeType);
     }
 
@@ -374,8 +374,8 @@ public class EdiProcessorService {
         String mimeType = determineMimeType(format);
         String fileExtension = determineFileExtension(format);
 
-        String filename = "ITEM_ACK_" + uuid + "." + fileExtension;
-        String content = contentProvider.getItemAckContent();
+        String filename = transactionType+"_"+responseType+"_" + uuid + "." + fileExtension;
+        String content = contentProvider.getfileWithOrdTypeContent(transactionType,responseType,orderType,format);
 
         return buildSuccessResponse(filename, content, mimeType);
     }
