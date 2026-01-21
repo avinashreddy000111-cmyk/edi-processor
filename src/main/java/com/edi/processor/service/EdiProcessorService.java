@@ -293,7 +293,7 @@ public class EdiProcessorService {
             List<ResponseItem> items = new ArrayList<>();
 
             // First response - ACK
-            String ackFilename = transactionType + "_" + orderType + "_" + responseType + "_" + uuid + "." + fileExtension;
+            String ackFilename = transactionType + "_" + orderType + "_ACK_" + uuid + "." + fileExtension;
             String ackContent = contentProvider.getfileWithOrdTypeContent(transactionType,"ACK",orderType,format);
             items.add(ResponseItem.builder()
                     .success(true)
@@ -336,7 +336,7 @@ public class EdiProcessorService {
             List<ResponseItem> items = new ArrayList<>();
 
             // First response - ACK
-            String ackFilename = transactionType+"_"+responseType+"_" + uuid + "." + fileExtension;
+            String ackFilename = transactionType+"_ACK_" + uuid + "." + fileExtension;
             String ackContent = contentProvider.getfileWithoutOrdTypeContent(transactionType,"ACK",format);
             items.add(ResponseItem.builder()
                     .success(true)
