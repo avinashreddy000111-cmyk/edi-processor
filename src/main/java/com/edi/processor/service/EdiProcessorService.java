@@ -244,17 +244,17 @@ public class EdiProcessorService {
 
         // ORDER Transaction
         if (TRANSACTION_TYPE_ORDER.equalsIgnoreCase(transactionType)) {
-            return handleOrderTransaction(orderType, format, responseType, uuid);
+            return handleOrderTransaction(transactionType,orderType, format, responseType, uuid);
         }
 
         // ASN Transaction
         if (TRANSACTION_TYPE_ASN.equalsIgnoreCase(transactionType)) {
-            return handleAsnTransaction(format, responseType, uuid);
+            return handleAsnTransaction(transactionType,format, responseType, uuid);
         }
 
         // ITEM Transaction - always returns 1 response
         if (TRANSACTION_TYPE_ITEM.equalsIgnoreCase(transactionType)) {
-            return handleItemTransaction(format, responseType, uuid);
+            return handleItemTransaction(transactionType,format, responseType, uuid);
         }
 
         // Default - return error
@@ -283,7 +283,7 @@ public class EdiProcessorService {
      * Handle ORDER Transaction
      * Valid Response Types: ACK (1 response), SHIPCONFIRM (2 responses)
      */
-    private EdiResponse handleOrderTransaction(String orderType, String format,
+    private EdiResponse handleOrderTransaction(String transactionType,String orderType, String format,
                                                 String responseType, String uuid) {
         String mimeType = determineMimeType(format);
         String fileExtension = determineFileExtension(format);
@@ -293,7 +293,7 @@ public class EdiProcessorService {
             List<ResponseItem> items = new ArrayList<>();
 
             // First response - ACK
-            String ackFilename = "ORDER_" + orderType + "_ACK_" + uuid + "." + fileExtension;
+            String ackFilename = transactionType + "_" + orderType + "_" + responseType + "_" + uuid + "." + fileExtension;
             String ackContent = contentProvider.getfileWithOrdTypeContent(transactionType,"ACK",orderType,format);
             items.add(ResponseItem.builder()
                     .success(true)
@@ -304,7 +304,7 @@ public class EdiProcessorService {
                     .build());
 
             // Second response - SHIPCONFIRM
-            String shipFilename = "ORDER_" + orderType + "_SHIPCONFIRM_" + uuid + "." + fileExtension;
+            String shipFilename = transactionType + "_" + orderType + "_" + responseType + "_" + uuid + "." + fileExtension;
             String shipContent = contentProvider.getfileWithOrdTypeContent(transactionType,responseType,orderType,format);
             items.add(ResponseItem.builder()
                     .success(true)
@@ -318,7 +318,7 @@ public class EdiProcessorService {
         }
 
         // ACK - returns 1 response
-        String filename = "ORDER_" + orderType + "_ACK_" + uuid + "." + fileExtension;
+        String filename = transactionType + "_" + orderType + "_" + responseType + "_" + uuid + "." + fileExtension;
         String content = contentProvider.getfileWithOrdTypeContent(transactionType,"ACK",orderType,format);
         return buildSuccessResponse(filename, content, mimeType);
     }
