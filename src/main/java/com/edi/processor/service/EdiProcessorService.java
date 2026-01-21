@@ -337,7 +337,7 @@ public class EdiProcessorService {
 
             // First response - ACK
             String ackFilename = transactionType+"_"+responseType+"_" + uuid + "." + fileExtension;
-            String ackContent = contentProvider.getfileWithOrdTypeContent(transactionType,"ACK",orderType,format);
+            String ackContent = contentProvider.getfileWithoutOrdTypeContent(transactionType,"ACK",format);
             items.add(ResponseItem.builder()
                     .success(true)
                     .filename(ackFilename)
@@ -348,7 +348,7 @@ public class EdiProcessorService {
 
             // Second response - RECEIPT
             String receiptFilename = transactionType+"_"+responseType+"_" + uuid + "." + fileExtension;
-            String receiptContent = contentProvider.getfileWithOrdTypeContent(transactionType,responseType,orderType,format);
+            String receiptContent = contentProvider.getfileWithoutOrdTypeContent(transactionType,responseType,format);
             items.add(ResponseItem.builder()
                     .success(true)
                     .filename(receiptFilename)
@@ -362,7 +362,7 @@ public class EdiProcessorService {
 
         // ACK - returns 1 response
         String filename = transactionType+"_"+responseType+"_" + uuid + "." + fileExtension;
-        String content = contentProvider.getfileWithOrdTypeContent(transactionType,"ACK",orderType,format);
+        String content = contentProvider.getfileWithoutOrdTypeContent(transactionType,"ACK",format);
         return buildSuccessResponse(filename, content, mimeType);
     }
 
@@ -375,7 +375,7 @@ public class EdiProcessorService {
         String fileExtension = determineFileExtension(format);
 
         String filename = transactionType+"_"+responseType+"_" + uuid + "." + fileExtension;
-        String content = contentProvider.getfileWithOrdTypeContent(transactionType,responseType,orderType,format);
+        String content = contentProvider.getfileWithoutOrdTypeContent(transactionType,responseType,format);
 
         return buildSuccessResponse(filename, content, mimeType);
     }
